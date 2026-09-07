@@ -1,0 +1,40 @@
+{
+  "jobName": "support-chatbot-correctness-v3",
+  "roleArn": "arn:aws:iam::234719590191:role/bedrock-eval-role",
+  "applicationType": "ModelEvaluation",
+  "evaluationConfig": {
+    "automated": {
+      "datasetMetricConfigs": [
+        {
+          "taskType": "General",
+          "dataset": {
+            "name": "support-tests-v3",
+            "datasetLocation": {
+              "s3Uri": "s3://udacity-agentic-engineer-c1-eval-234719590191/datasets/output_eval_dataset_v3.jsonl"
+            }
+          },
+          "metricNames": ["Builtin.Correctness"]
+        }
+      ],
+      "evaluatorModelConfig": {
+        "bedrockEvaluatorModels": [
+          {
+            "modelIdentifier": "amazon.nova-pro-v1:0"
+          }
+        ]
+      }
+    }
+  },
+  "inferenceConfig": {
+    "models": [
+      {
+        "precomputedInferenceSource": {
+          "inferenceSourceIdentifier": "my-support-chatbot"
+        }
+      }
+    ]
+  },
+  "outputDataConfig": {
+    "s3Uri": "s3://udacity-agentic-engineer-c1-eval-234719590191/results/v3/"
+  }
+}
