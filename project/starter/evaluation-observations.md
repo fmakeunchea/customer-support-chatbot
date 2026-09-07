@@ -49,3 +49,23 @@ interpreted alongside manual checks.
 5. Test the full demo-phone disclosure explicitly rather than relying
    only on the Correctness score.
 6. Expand coverage with ambiguous requests and more injection attempts.
+
+## Follow-up tool checks before cleanup
+
+The v4 retry recorded full stream events and checked observed tool-call
+counts. Five of six count checks passed. `bug-missing-environment` failed:
+expected zero calls, observed one. The trace shows an empty environment
+argument, which Lambda rejected. The outer successful tool invocation
+status was not a successful ticket creation.
+
+After strengthening the registered Gateway tool description, the focused
+v5 test still observed one premature call. This change did not fix the
+measured failure. These follow-up runs were not scored by Bedrock's judge.
+The three offline trace tests passed. Stronger Lambda type validation has
+been discussed but not implemented.
+
+Evidence: `output_eval_dataset_v4_retry.jsonl`, its `.trace.jsonl` file,
+and `output_missing_environment_v5.jsonl` with its `.trace.jsonl` file.
+The initial interrupted v4 attempt produced empty files and is not included
+as evaluation evidence. Trace files contain test inputs and tool results;
+use fictional test data when collecting shareable traces.

@@ -35,10 +35,14 @@ REGION = "us-east-1"
 TOOL_SCHEMA = {
     "name": "create_bug_report",
     "description": (
-        "File a bug ticket in the engineering team's tracker. "
-        "Call this only after the customer has provided a bug description, "
-        "the steps to reproduce it, and their environment. "
-        "Returns the new ticket's ID."
+        "Create a real bug ticket. This tool writes to the database; it is not "
+        "a validator or a way to discover missing information. Call only when "
+        "actual customer messages supply all three non-empty fields: "
+        "description, stepsToReproduce, and environment. If any field is "
+        "missing, empty, whitespace, or unknown, ask the customer for it and "
+        "wait instead of calling this tool. Never invent field values. "
+        "Success returns ticketId and status OPEN; an error means creation "
+        "was not confirmed."
     ),
     "inputSchema": {
         "type": "object",
@@ -53,7 +57,8 @@ TOOL_SCHEMA = {
             },
             "environment": {
                 "type": "string",
-                "description": "Customer's environment: browser, OS, device.",
+                "description": "Browser, OS, and device explicitly supplied by the customer. "
+                               "Must be non-empty; if not supplied, ask the customer before calling.",
             },
         },
         "required": ["description", "stepsToReproduce", "environment"],

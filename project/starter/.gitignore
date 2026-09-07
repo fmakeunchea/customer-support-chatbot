@@ -10,3 +10,9 @@ output_eval_dataset.jsonl
 .venv/
 __pycache__/
 *.py[cod]
+
+# Local backup before AWS cleanup
+cleanup-backup/
+# Empty outputs from the interrupted v4 attempt
+output_eval_dataset_v4.jsonl
+output_eval_dataset_v4.trace.jsonl

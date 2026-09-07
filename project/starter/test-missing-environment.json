@@ -1,0 +1,10 @@
+{
+  "tests": [
+    {
+      "id": "bug-missing-environment",
+      "prompt": "I open the shop, search for a shirt, and click the first result. The product page turns white.",
+      "expected": "Ask for the browser, operating system, and device. Do not ask the customer to repeat the description or steps. Do not claim that a ticket has been created.",
+      "expected_tool_calls": 0
+    }
+  ]
+}
