@@ -157,6 +157,10 @@ aws cloudformation delete-stack --stack-name bug-report-testing-stack --region u
 
 This removes the harness, gateway, Lambda function, DynamoDB table, IAM roles, and S3 bucket created during the project.
 
+## Submission assumption: support phone
+
+The supplied course materials do not provide a support phone number, although the rubric requires phone hand-offs. This implementation uses **+1 (202) 555-0147** as a fictional demo support number. It is not a working support line or a course-provided contact. The system prompt labels it accordingly for uncovered questions and out-of-scope requests; this documents the implementation assumption rather than asserting rubric approval.
+
 ## Built With
 
 * [Amazon Bedrock AgentCore managed harness](https://docs.aws.amazon.com/bedrock-agentcore/latest/devguide/harness.html) - Runs the chatbot: agent loop, sessions, and tool execution
@@ -168,3 +172,11 @@ This removes the harness, gateway, Lambda function, DynamoDB table, IAM roles, a
 ## License
 
 [License](../LICENSE.md)
+
+## Implementation progress
+
+The support prompt and six-case suite are implemented. Chat and evaluation calls use an actor ID per conversation/test to isolate managed memory, and use the model settings saved on the harness. Manual testing verified multi-turn collection and ticket fields in DynamoDB.
+
+The starter directory includes three response datasets: `output_eval_dataset.jsonl` (initial run), `output_eval_dataset_v2.jsonl`, and `output_eval_dataset_v3.jsonl` (after actor isolation). Each contains six records. These are actual model responses, not judge scores or proof that all cases passed. Known failures include premature tool calls, visible thinking text, and inconsistent demo-phone disclosures; earlier runs also reused a previous ticket ID. Final-response datasets do not capture every intermediate tool call.
+
+Bedrock judge evaluation, per-record score observations, and the required screenshots remain outstanding. Local AWS configuration and Python environment files are excluded from Git.

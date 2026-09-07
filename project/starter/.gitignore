@@ -5,3 +5,8 @@ demo_guides/*
 scripts/*
 agentcore_config.json
 output_eval_dataset.jsonl
+
+# Local Python environment and bytecode
+.venv/
+__pycache__/
+*.py[cod]

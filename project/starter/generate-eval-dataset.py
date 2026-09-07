@@ -4,8 +4,11 @@ JSONL dataset (LLM-as-a-judge, bring-your-own-inference).
 
     python generate-eval-dataset.py --tests-json harness-tests.json
 
-Each test case is sent to the harness in a FRESH session (a new
-runtimeSessionId), so test cases cannot influence each other. The final
+Model and inference settings come from the deployed harness, configured
+with create_harness.py. --model-identifier only labels the dataset output.
+
+Each test case uses a fresh runtimeSessionId and actorId to isolate its
+conversation and managed memory. Tests still share the ticket database. The final
 assistant reply is written to the output JSONL in the format Bedrock
 Evaluations expects:
 
@@ -37,7 +40,6 @@ def invoke_harness_once(
     rt,
     harness_arn: str,
     gateway_arn: str,
-    model_id: str,
     prompt: str,
 ) -> Dict[str, Any]:
     """Invoke the harness with a single user message in a fresh session and
@@ -55,13 +57,13 @@ def invoke_harness_once(
             "config": {"agentCoreGateway": {"gatewayArn": gateway_arn}},
         }]
 
+    # A fresh actor isolates long-term memory as well as conversation history.
+    session_id = f"{uuid.uuid4()}-evalcase"
     response = rt.invoke_harness(
         harnessArn=harness_arn,
-        # Session ids must be >= 33 characters; a fresh one per test case
-        # keeps every test independent.
-        runtimeSessionId=f"{uuid.uuid4()}-evalcase",
-        # Pin the model explicitly — never rely on the harness default.
-        model={"bedrockModelConfig": {"modelId": model_id}},
+        runtimeSessionId=session_id,
+        actorId=session_id,
+        # Use the model and inference settings saved by create_harness.py.
         tools=tools,
         messages=[{"role": "user", "content": [{"text": prompt}]}],
     )
@@ -97,8 +99,6 @@ def main():
                    help="Harness ARN (overrides the config file).")
     p.add_argument("--gateway-arn", default=None,
                    help="Gateway ARN to attach (overrides the config file).")
-    p.add_argument("--model-id", default="us.amazon.nova-pro-v1:0",
-                   help="Bedrock model id to pin on every invoke.")
     p.add_argument("--model-identifier", default="my-support-chatbot",
                    help="Value to put in modelResponses[0].modelIdentifier.")
     p.add_argument("--out-jsonl", default="output_eval_dataset.jsonl",
@@ -141,7 +141,6 @@ def main():
                     rt=rt,
                     harness_arn=harness_arn,
                     gateway_arn=gateway_arn,
-                    model_id=args.model_id,
                     prompt=prompt,
                 )
                 response_text = result["final_output_text"]

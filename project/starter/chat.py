@@ -6,6 +6,8 @@
 Every run starts ONE conversation (one `runtimeSessionId`). The harness is
 stateful: as long as you reuse the same session id, it remembers the whole
 conversation — that is what lets it collect bug details over several turns.
+Each run also uses its session ID as a unique actor ID, isolating managed
+memory from previous runs while retaining memory between turns in this run.
 Start the script again to get a fresh conversation.
 
 The script attaches your AgentCore Gateway to each invoke, so the model can
@@ -44,9 +46,9 @@ def invoke(rt, config, session_id, user_text, verbose=False):
     response = rt.invoke_harness(
         harnessArn=config["harness_arn"],
         runtimeSessionId=session_id,
-        # Pin the model on every invoke as well (belt and suspenders —
-        # create_harness.py already pinned it on the harness).
-        model={"bedrockModelConfig": {"modelId": config.get("model_id", "us.amazon.nova-pro-v1:0")}},
+        # One demo customer per run; reuse this actor on every chat turn.
+        actorId=session_id,
+        # Use the model and inference settings saved by create_harness.py.
         # Attach the gateway so the model can use create_bug_report.
         tools=[{
             "type": "agentcore_gateway",
